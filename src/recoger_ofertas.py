@@ -1,7 +1,8 @@
 """Descarga ofertas de empleo de datos y marketing en España desde la API de Jooble.
 
-Guarda todo en data/raw/ofertas_AAAA-MM-DD.json (una lista de ofertas sin duplicados).
-La API tiene un límite de peticiones, así que el script avisa de cuántas ha gastado."""
+Cada búsqueda se guarda en su propio archivo: data/raw/AAAA-MM-DD/<busqueda>.json
+Si la API corta por exceso de peticiones, basta con volver a ejecutar el script más tarde:
+salta las búsquedas que ya están guardadas y sigue por donde iba."""
 
 import json
 import os
@@ -23,34 +24,47 @@ BUSQUEDAS = [
 MAX_PAGINAS = 10   # 10 páginas x 30 ofertas = hasta 300 ofertas por búsqueda
 DIAS = 30          # solo ofertas publicadas en el último mes
 
+hoy = date.today().isoformat()
 desde = (date.today() - timedelta(days=DIAS)).isoformat()
-ofertas = {}       # usamos el id como clave para no repetir ofertas
+carpeta = f"data/raw/{hoy}"
+os.makedirs(carpeta, exist_ok=True)
 peticiones = 0
 
+
+def pedir_pagina(busqueda, pagina):
+    """Pide una página a la API. Devuelve la lista de ofertas o None si la API nos frena."""
+    global peticiones
+    cuerpo = {"keywords": busqueda, "location": "", "page": str(pagina), "datecreatedfrom": desde}
+    respuesta = requests.post(URL, json=cuerpo, timeout=30)
+    peticiones += 1
+    if respuesta.status_code == 429:   # demasiadas peticiones
+        return None
+    respuesta.raise_for_status()
+    return respuesta.json().get("jobs", [])
+
+
 for busqueda in BUSQUEDAS:
+    archivo = f"{carpeta}/{busqueda.replace(' ', '_')}.json"
+    if os.path.exists(archivo):        # ya la teníamos de una ejecución anterior
+        print(f"{busqueda:<28} -> ya guardada, la salto")
+        continue
+
+    ofertas = []
     for pagina in range(1, MAX_PAGINAS + 1):
-        cuerpo = {"keywords": busqueda, "location": "", "page": str(pagina),
-                  "datecreatedfrom": desde}
-        respuesta = requests.post(URL, json=cuerpo, timeout=30)
-        peticiones += 1
-        respuesta.raise_for_status()
-        resultados = respuesta.json().get("jobs", [])
-
-        if not resultados:          # no hay más páginas: pasamos a la siguiente búsqueda
+        resultados = pedir_pagina(busqueda, pagina)
+        if resultados is None:
+            print(f"\nLa API nos ha frenado (error 429) en '{busqueda}'.")
+            print("Lo ya guardado está a salvo. Vuelve a ejecutar el script dentro de un rato.")
+            print(f"Peticiones gastadas en esta ejecución: {peticiones}")
+            raise SystemExit
+        if not resultados:             # no hay más páginas
             break
-        for oferta in resultados:
-            oferta["busqueda"] = busqueda   # apuntamos con qué búsqueda la encontramos
-            ofertas.setdefault(oferta["id"], oferta)
+        ofertas += [{**oferta, "busqueda": busqueda} for oferta in resultados]
+        time.sleep(2)                  # pausa para no saturar la API
 
-        time.sleep(1)               # una pausa para no saturar la API
+    with open(archivo, "w", encoding="utf-8") as f:
+        json.dump(ofertas, f, ensure_ascii=False, indent=2)
+    print(f"{busqueda:<28} -> {len(ofertas)} ofertas guardadas")
 
-    print(f"{busqueda:<28} -> {len(ofertas)} ofertas únicas acumuladas")
-
-# Guardamos el resultado del día
-archivo = f"data/raw/ofertas_{date.today().isoformat()}.json"
-os.makedirs("data/raw", exist_ok=True)
-with open(archivo, "w", encoding="utf-8") as f:
-    json.dump(list(ofertas.values()), f, ensure_ascii=False, indent=2)
-
-print(f"\nListo: {len(ofertas)} ofertas guardadas en {archivo}")
-print(f"Peticiones gastadas en esta recogida: {peticiones}")
+print(f"\nRecogida completa en {carpeta}")
+print(f"Peticiones gastadas en esta ejecución: {peticiones}")

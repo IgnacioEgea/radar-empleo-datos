@@ -9,6 +9,7 @@ venv/
 .ipynb_checkpoints/
 
 # Datos en bruto (se regeneran con los scripts)
+data/raw/**/*.json
 data/raw/*.json
 
 # Sistema
