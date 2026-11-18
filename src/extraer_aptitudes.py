@@ -18,7 +18,7 @@ from google.genai import types
 load_dotenv()
 cliente = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 # Si un modelo está saturado o no existe, se prueba el siguiente de la lista
-MODELOS = ["gemini-4-hydrogen", "gemini-2.5-flash", "gemini-2.5-flash-lite"]
+MODELOS = ["gemini-4-hydrogen", "gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.5-flash-lite"]
 LOTE = 25          # ofertas por petición
 PAUSA = 5          # segundos entre peticiones (el plan gratuito limita por minuto)
 
