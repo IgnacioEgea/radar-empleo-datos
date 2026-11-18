@@ -1,0 +1,16 @@
+# Claves y configuración privada (nunca se suben)
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Datos en bruto (se regeneran con los scripts)
+data/raw/*.json
+
+# Sistema
+.DS_Store
+Thumbs.db
