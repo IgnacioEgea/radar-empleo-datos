@@ -17,7 +17,8 @@ from google.genai import types
 
 load_dotenv()
 cliente = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-MODELO = "gemini-4-hydrogen"
+# Si un modelo está saturado o no existe, se prueba el siguiente de la lista
+MODELOS = ["gemini-4-hydrogen", "gemini-2.5-flash", "gemini-2.5-flash-lite"]
 LOTE = 25          # ofertas por petición
 PAUSA = 5          # segundos entre peticiones (el plan gratuito limita por minuto)
 
@@ -41,10 +42,11 @@ Responde SOLO con una lista JSON, sin texto adicional."""
 def analizar_lote(ofertas):
     """Envía un lote de ofertas a Gemini y devuelve la lista de resultados."""
     texto = "\n\n".join(f"id: {o[0]}\ntítulo: {o[1]}\nextracto: {o[2]}" for o in ofertas)
-    for intento in range(3):
+    for intento in range(2 * len(MODELOS)):     # dos vueltas a la lista de modelos
+        modelo = MODELOS[intento % len(MODELOS)]
         try:
             respuesta = cliente.models.generate_content(
-                model=MODELO,
+                model=modelo,
                 contents=texto,
                 config=types.GenerateContentConfig(
                     system_instruction=INSTRUCCIONES,
@@ -53,9 +55,11 @@ def analizar_lote(ofertas):
                 ),
             )
             return json.loads(respuesta.text)
-        except Exception as error:   # límite por minuto, respuesta mal formada...
-            print(f"  Aviso: {str(error)[:120]}. Reintento en 60 s...")
-            time.sleep(60)
+        except Exception as error:   # saturado, límite por minuto, respuesta mal formada...
+            print(f"  {modelo}: {str(error)[:80]}")
+            if intento % len(MODELOS) == len(MODELOS) - 1:   # fallaron todos: esperamos
+                print("  Todos los modelos ocupados. Reintento en 60 s...")
+                time.sleep(60)
     return None
 
 
