@@ -52,6 +52,8 @@ for archivo in sorted(glob.glob("data/raw/*/*.json")):
     fecha_recogida = os.path.basename(os.path.dirname(archivo))
     with open(archivo, encoding="utf-8") as f:
         ofertas = json.load(f)
+    if isinstance(ofertas, dict):   # respuesta completa de la API: las ofertas están en "jobs"
+        ofertas = ofertas.get("jobs", [])
 
     for o in ofertas:
         empresa = limpiar_texto(o.get("company")) or "Sin especificar"
