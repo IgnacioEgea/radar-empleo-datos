@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radar del empleo</title>
+<meta name="description" content="Qué piden las empresas a un perfil junior de datos y marketing digital en España, cuánto pagan y dónde se teletrabaja. Proyecto de Ignacio Egea.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* VOICE: un informe honesto de alguien que busca trabajo, con datos y sin humo.
+   IDEA: una pantalla de radar que barre el mercado laboral y detecta lo que piden.
+   PICTURE: el radar grande del inicio, con las aptitudes como señales.
+   COLOUR and TYPE: noche verde-negra, verde salvia y terracota; Bricolage + Inter.
+   LAYOUT: bandas a todo el ancho, contenido hasta 1180px, todo apila bien en móvil. */
+:root{color-scheme:dark;--bg:#0E1110;--panel:#151917;--line:#262C29;--ink:#EDEFEA;--soft:#B4BBB6;--mute:#8C948F;--sig:#B5CF7A;--warm:#D08C6E;--teal:#7AA39B}
+*{box-sizing:border-box;min-width:0}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,system-ui,sans-serif;overflow-x:clip}
+a{color:var(--sig)}a:hover{color:#D3E6A6}
+:focus-visible{outline:2px solid var(--sig);outline-offset:3px}
+h1,h2,h3{font-family:'Bricolage Grotesque',sans-serif;line-height:1.05;text-wrap:balance;margin:0}
+h2{font-size:clamp(30px,4vw,44px);font-weight:800}
+h3{font-size:22px;font-weight:700}
+p{margin:0}
+.wrap{max-width:1180px;margin:0 auto}
+.band{padding:clamp(48px,7vw,96px) max(5vw,16px);border-top:1px solid var(--line)}
+.lead{font-size:17px;color:var(--soft);max-width:66ch}
+.mono{font-family:'JetBrains Mono',monospace}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 22px;border-radius:4px;font-weight:600;text-decoration:none;border:1px solid var(--line)}
+.btn.main{background:var(--sig);color:#0E1110;border-color:var(--sig)}.btn.main:hover{background:#C9DE96;color:#0E1110}
+.btn.ghost{color:var(--ink)}.btn.ghost:hover{border-color:var(--soft);color:var(--ink)}
+
+/* Navegación */
+nav{position:sticky;top:0;z-index:5;background:rgb(14 17 16/.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:0 max(5vw,16px)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;color:var(--ink);text-decoration:none}
+.links{display:flex;gap:4px;overflow-x:auto}
+.links a{flex:none;color:var(--soft);text-decoration:none;padding:10px 12px;border-radius:4px;font-size:15px}
+.links a:hover{color:var(--ink);background:var(--panel)}
+
+/* Portada */
+.hero{padding:clamp(40px,6vw,80px) max(5vw,16px)}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(24px,4vw,56px);align-items:center}
+.hero h1{font-size:clamp(40px,5.6vw,68px);font-weight:800;letter-spacing:-.02em;margin:18px 0 20px}
+.status{display:inline-flex;align-items:center;gap:10px;font-size:14px;color:var(--soft);border:1px solid var(--line);border-radius:999px;padding:6px 14px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--warm);box-shadow:0 0 0 4px rgb(208 140 110/.18)}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.radar{position:relative;aspect-ratio:1;width:100%;max-width:560px;justify-self:center}
+.radar svg{width:100%;height:100%;display:block}
+.sweep{transform-origin:260px 260px;animation:giro 7s linear infinite}
+@keyframes giro{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.sweep{animation:none}html{scroll-behavior:auto}}
+.cap{font-size:13px;color:var(--mute);text-align:center;margin-top:6px}
+
+/* Bloques */
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:36px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:28px;display:flex;flex-direction:column;gap:12px}
+.card p{color:var(--soft)}
+.icon{width:44px;height:44px;border-radius:4px;display:grid;place-items:center;background:#1E2421;color:var(--sig)}
+.steps{list-style:none;padding:0;margin:40px 0 0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;counter-reset:paso}
+.steps li{position:relative;padding:24px 20px 0 0;border-top:2px solid var(--line)}
+.steps li::before{content:"";position:absolute;top:-7px;left:0;width:12px;height:12px;border-radius:50%;background:var(--sig)}
+.steps b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:20px;margin-bottom:6px}
+.steps p{color:var(--soft);font-size:15px}
+.tool{display:inline-block;margin-top:10px;font-size:13px;color:var(--teal)}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:start}
+.pend{display:grid;gap:12px;margin-top:8px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:20px 24px}
+.row span{color:var(--soft)}
+.tag{font-size:13px;color:var(--warm);white-space:nowrap}
+.frame{margin-top:36px;background:var(--panel);border:1px dashed var(--line);border-radius:4px;min-height:360px;display:grid;place-items:center;text-align:center;padding:32px}
+.frame p{color:var(--soft);max-width:48ch;margin:12px auto 20px}
+.list{margin:20px 0 0;padding:0;list-style:none;display:grid;gap:14px}
+.list li{padding-left:28px;position:relative;color:var(--soft)}
+.list li::before{content:"";position:absolute;left:4px;top:.6em;width:10px;height:10px;border:2px solid var(--warm);border-radius:50%}
+.me{display:grid;grid-template-columns:auto minmax(0,1fr);gap:28px;align-items:start}
+.avatar{width:96px;height:96px;border-radius:50%;background:#1E2421;display:grid;place-items:center;font:800 32px 'Bricolage Grotesque',sans-serif;color:var(--sig);border:1px solid var(--line)}
+footer{border-top:1px solid var(--line);padding:32px max(5vw,16px);color:var(--mute);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+
+@media(max-width:900px){
+  .hero .wrap,.split{grid-template-columns:minmax(0,1fr)}
+  .radar{max-width:440px}
+  .grid3{grid-template-columns:minmax(0,1fr)}
+  .steps{grid-template-columns:minmax(0,1fr);gap:0}
+  .steps li{border-top:0;border-left:2px solid var(--line);padding:0 0 28px 24px}
+  .steps li::before{top:4px;left:-7px}
+}
+@media(max-width:600px){
+  .links{display:none}
+  .me{grid-template-columns:minmax(0,1fr)}
+  .row{grid-template-columns:minmax(0,1fr)}
+}
+</style>
+</head>
+<body>
+
+<nav aria-label="Principal">
+  <div class="wrap">
+    <a class="brand" href="#inicio">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" fill="none"><circle cx="14" cy="14" r="12" stroke="#262C29" stroke-width="2"/><circle cx="14" cy="14" r="6" stroke="#262C29" stroke-width="2"/><path d="M14 14 L14 2 A12 12 0 0 1 24.4 8 Z" fill="#B5CF7A" fill-opacity=".35"/><circle cx="19" cy="7" r="2" fill="#B5CF7A"/></svg>
+      Radar del empleo
+    </a>
+    <div class="links">
+      <a href="#pregunta">La pregunta</a>
+      <a href="#metodo">Cómo lo hago</a>
+      <a href="#hallazgos">Hallazgos</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#sobre-mi">Sobre mí</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+<!-- Portada -->
+<section class="hero" id="inicio">
+  <div class="wrap">
+    <div>
+      <span class="status"><span class="dot"></span>Proyecto en curso · recogiendo datos</span>
+      <h1>¿Qué piden de verdad para tu primer trabajo en datos?</h1>
+      <p class="lead">Estoy buscando mi primer puesto como analista. En vez de fiarme de listas genéricas, he montado un radar que lee ofertas reales publicadas en España y responde con datos: qué herramientas se piden, cuánto se paga y dónde se puede teletrabajar.</p>
+      <div class="cta">
+        <a class="btn main" href="#dashboard">Ver el dashboard</a>
+        <a class="btn ghost" href="https://github.com/IgnacioEgea/radar-empleo-datos">Ver el código en GitHub</a>
+      </div>
+    </div>
+    <div>
+      <div class="radar">
+        <svg viewBox="0 0 520 520" role="img" aria-label="Radar que detecta aptitudes como SQL, Python, Power BI, Excel, Google Analytics, IA generativa e inglés">
+          <defs>
+            <radialGradient id="fondo" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#18201C"/><stop offset="1" stop-color="#0E1110"/></radialGradient>
+            <linearGradient id="haz" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#B5CF7A" stop-opacity="0"/><stop offset="1" stop-color="#B5CF7A" stop-opacity=".28"/></linearGradient>
+          </defs>
+          <circle cx="260" cy="260" r="250" fill="url(#fondo)" stroke="#262C29" stroke-width="2"/>
+          <g stroke="#262C29" fill="none" stroke-width="1.5">
+            <circle cx="260" cy="260" r="190"/><circle cx="260" cy="260" r="128"/><circle cx="260" cy="260" r="64"/>
+            <line x1="10" y1="260" x2="510" y2="260"/><line x1="260" y1="10" x2="260" y2="510"/>
+          </g>
+          <g class="sweep">
+            <path d="M260 260 L260 10 A250 250 0 0 1 437 83 Z" fill="url(#haz)"/>
+            <line x1="260" y1="260" x2="437" y2="83" stroke="#B5CF7A" stroke-width="2"/>
+          </g>
+          <g id="senales" font-family="Inter, sans-serif" font-size="15" font-weight="600" fill="#EDEFEA" paint-order="stroke" stroke="#0E1110" stroke-width="5" stroke-linejoin="round"></g>
+          <circle cx="260" cy="260" r="6" fill="#EDEFEA"/>
+        </svg>
+      </div>
+      <p class="cap">Ilustración: las aptitudes que el radar busca en cada oferta.</p>
+    </div>
+  </div>
+</section>
+
+<!-- La pregunta -->
+<section class="band" id="pregunta">
+  <div class="wrap">
+    <h2>Una pregunta, tres respuestas</h2>
+    <p class="lead" style="margin-top:16px">¿Qué piden las empresas a un perfil junior de datos y marketing digital en España, cuánto pagan y dónde está el teletrabajo?</p>
+    <div class="grid3" id="preguntas"></div>
+  </div>
+</section>
+
+<!-- Método -->
+<section class="band" id="metodo">
+  <div class="wrap">
+    <h2>Cómo lo hago</h2>
+    <p class="lead" style="margin-top:16px">Todo el proceso es reproducible, gratuito y está en GitHub: de la oferta publicada al gráfico final.</p>
+    <ol class="steps" id="pasos"></ol>
+  </div>
+</section>
+
+<!-- Hallazgos -->
+<section class="band" id="hallazgos">
+  <div class="wrap split">
+    <div>
+      <h2>Hallazgos</h2>
+      <p class="lead" style="margin-top:16px">Esta parte se rellena con los resultados de la primera recogida. Prefiero dejarla vacía a poner cifras inventadas.</p>
+    </div>
+    <div class="pend" id="pendientes"></div>
+  </div>
+</section>
+
+<!-- Dashboard -->
+<section class="band" id="dashboard">
+  <div class="wrap">
+    <h2>El dashboard</h2>
+    <p class="lead" style="margin-top:16px">Un panel interactivo en Looker Studio para filtrar por puesto, nivel, ciudad y modalidad.</p>
+    <div class="frame">
+      <div>
+        <h3>Disponible muy pronto</h3>
+        <p>Aquí aparecerá el dashboard en cuanto estén los datos de la primera recogida. Mientras tanto, puedes seguir el avance en el repositorio.</p>
+        <a class="btn ghost" href="https://github.com/IgnacioEgea/radar-empleo-datos">Seguir el proyecto en GitHub</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Limitaciones -->
+<section class="band" id="limites">
+  <div class="wrap split">
+    <div>
+      <h2>Lo que este análisis no cuenta</h2>
+      <p class="lead" style="margin-top:16px">Un buen análisis dice también dónde están sus límites.</p>
+    </div>
+    <ul class="list" id="limitaciones"></ul>
+  </div>
+</section>
+
+<!-- Sobre mí -->
+<section class="band" id="sobre-mi">
+  <div class="wrap me">
+    <div class="avatar" aria-hidden="true">IE</div>
+    <div>
+      <h2>Ignacio Egea Villalba</h2>
+      <p class="lead" style="margin-top:16px">Graduado en Diseño de Productos Interactivos (U-tad), con el Máster en Marketing Digital de la UCM (9,3 y premio al mejor TFM) y cursando ahora el Máster en Big Data, Data Science y Business Analytics, también en la UCM.</p>
+      <p class="lead" style="margin-top:12px">Busco un puesto junior de Data o Business Analyst, Marketing Analyst, BI o IA aplicada, en remoto o híbrido. Si este proyecto te ha parecido interesante, hablemos.</p>
+      <div class="cta">
+        <a class="btn main" href="https://www.linkedin.com/in/nacho-egea">Escríbeme en LinkedIn</a>
+        <a class="btn ghost" href="https://web-portfolio-psi-eosin.vercel.app">Ver mi portfolio</a>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Radar del empleo · Ignacio Egea Villalba · 2026</span>
+    <span>Datos: API de Jooble · Código con licencia MIT</span>
+  </div>
+</footer>
+
+<script>
+{
+  // Señales del radar: [aptitud, x, y, color, tamaño]
+  const senales = [
+    ['SQL', 318, 128, '#B5CF7A', 8], ['Python', 150, 168, '#B5CF7A', 6], ['Google Analytics', 368, 205, '#7AA39B', 5],
+    ['IA generativa', 84, 262, '#7AA39B', 5], ['Power BI', 330, 312, '#7AA39B', 7], ['Excel', 152, 344, '#7AA39B', 6],
+    ['Inglés', 262, 410, '#D08C6E', 6]
+  ];
+  document.getElementById('senales').innerHTML = senales.map(([t, x, y, c, r]) =>
+    `<circle cx="${x}" cy="${y}" r="${r * 2.2}" fill="${c}" fill-opacity=".15" stroke="none"/>
+     <circle cx="${x}" cy="${y}" r="${r}" fill="${c}" stroke="none"/>
+     <text x="${x + r + 8}" y="${y + 5}">${t}</text>`).join('');
+
+  const icono = d => `<span class="icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg></span>`;
+  const preguntas = [
+    ['Qué piden', 'Qué herramientas y aptitudes aparecen más: SQL, Python, Power BI, Google Analytics, IA… y cómo cambian entre junior y senior.', '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'],
+    ['Cuánto pagan', 'Rangos de sueldo por puesto y ciudad, solo de las ofertas que lo publican. Y cuántas lo esconden, que también es un dato.', '<circle cx="12" cy="12" r="9"/><path d="M15 9.5a3 3 0 0 0-5 1.5c0 3 5 1.5 5 4.5a3 3 0 0 1-5 1.5M12 6v2M12 16v2"/>'],
+    ['Dónde se teletrabaja', 'Remoto, híbrido o presencial en Madrid, Barcelona, Valencia, A Coruña, Vigo, Pontevedra y el resto de España.', '<path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/>']
+  ];
+  document.getElementById('preguntas').innerHTML = preguntas.map(([t, p, d]) =>
+    `<article class="card">${icono(d)}<h3>${t}</h3><p>${p}</p></article>`).join('');
+
+  const pasos = [
+    ['Recoger', 'Descargo ofertas de 12 búsquedas de datos y marketing del último mes, sin duplicados.', 'Python · API de Jooble'],
+    ['Guardar', 'Las ordeno en una base de datos con ofertas, empresas y aptitudes relacionadas.', 'SQLite · SQL'],
+    ['Leer con IA', 'Un modelo extrae aptitudes, nivel y modalidad de cada oferta. Reviso una muestra a mano para medir su precisión.', 'Gemini · NLP'],
+    ['Analizar', 'Consultas SQL y pandas para responder a cada parte de la pregunta.', 'SQL · pandas'],
+    ['Contar', 'Un dashboard interactivo y unas recomendaciones claras para quien empieza.', 'Looker Studio · Power BI']
+  ];
+  document.getElementById('pasos').innerHTML = pasos.map(([t, p, h]) =>
+    `<li><b>${t}</b><p>${p}</p><span class="tool mono">${h}</span></li>`).join('');
+
+  const pendientes = ['Las aptitudes más pedidas a perfiles junior', 'Qué porcentaje de ofertas publica el sueldo', 'La ciudad con más teletrabajo', 'Qué aprender primero si empiezas hoy'];
+  document.getElementById('pendientes').innerHTML = pendientes.map(t =>
+    `<div class="row"><span>${t}</span><span class="tag">Pendiente de datos</span></div>`).join('');
+
+  const limitaciones = [
+    'La API devuelve un extracto de cada oferta, no el texto completo: alguna aptitud mencionada al final puede escaparse.',
+    'Solo una parte de las ofertas publica el sueldo, así que los rangos salariales se basan en esa parte.',
+    'Jooble reúne ofertas de muchos portales, pero no de todos: no es el mercado entero.',
+    'La IA puede equivocarse. Por eso mido su precisión con una muestra revisada a mano y la publico.'
+  ];
+  document.getElementById('limitaciones').innerHTML = limitaciones.map(t => `<li>${t}</li>`).join('');
+}
+</script>
+</body>
+</html>
